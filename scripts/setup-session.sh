@@ -65,5 +65,8 @@ terraform init -reconfigure
 
 echo ""
 echo "Session setup complete. You can now run:"
+echo ""
+echo "IMPORTANT: Run this script with 'source' not 'bash':"
+echo "  source scripts/setup-session.sh"
 echo "  cd terraform/environments/dev"
 echo "  terraform plan"
