@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ full_name }} — {{ title }}</title>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; max-width: 800px; margin: 60px auto; padding: 0 20px; color: #1a1a1a; line-height: 1.6; }
+    h1 { margin-bottom: 0; font-size: 32px; }
+    h2 { color: #555; font-weight: 400; margin-top: 4px; font-size: 18px; }
+    .section { margin-top: 32px; }
+    .section h3 { border-bottom: 2px solid #0a66c2; padding-bottom: 6px; }
+    ul { padding-left: 20px; }
+    .meta { color: #666; font-size: 14px; }
+    a { color: #0a66c2; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <h1>{{ full_name }}</h1>
+  <h2>{{ title }}</h2>
+  <p class="meta">{{ location }} &middot; <a href="mailto:{{ email }}">{{ email }}</a> &middot; <a href="{{ github_url }}">GitHub</a></p>
+
+  <div class="section">
+    <h3>Summary</h3>
+    <p>{{ summary }}</p>
+  </div>
+
+  <div class="section">
+    <h3>Core Skills</h3>
+    <ul>
+      {% for skill in skills %}
+      <li>{{ skill }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="section">
+    <h3>This Page</h3>
+    <p>Deployed via Terraform-provisioned AWS infrastructure (VPC, ALB, HTTPS, Route 53) and configured by Ansible over AWS SSM — no SSH. Source: <a href="{{ github_url }}">{{ github_url }}</a></p>
+  </div>
+</body>
+</html>
