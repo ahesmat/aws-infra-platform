@@ -1,0 +1,14 @@
+- name: Deploy resume page to EC2 via SSM
+  hosts: ec2
+  become: true
+  vars_files:
+    - vars.yml
+
+  tasks:
+    - name: Render and deploy resume HTML
+      ansible.builtin.template:
+        src: templates/index.html.j2
+        dest: /usr/share/nginx/html/index.html
+        owner: root
+        group: root
+        mode: '0644'
