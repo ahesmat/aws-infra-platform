@@ -17,3 +17,8 @@ output "route53_name_servers" {
   description = "Route 53 Name Servers"
   value       = aws_route53_zone.main.name_servers
 }
+
+output "github_actions_role_arn" {
+  description = "IAM role ARN for GitHub Actions OIDC authentication"
+  value       = aws_iam_role.github_actions.arn
+}
