@@ -65,6 +65,7 @@ jobs:
   apply:
     name: Terraform Apply
     runs-on: ubuntu-latest
+    environment: production
     if: github.event_name == 'push'
 
     steps:
