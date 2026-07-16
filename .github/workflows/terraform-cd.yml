@@ -90,3 +90,64 @@ jobs:
       - name: Terraform Apply
         run: terraform apply -auto-approve
         working-directory: terraform/environments/dev
+
+      - name: Get Terraform outputs
+        id: tf_outputs
+        run: |
+          echo "instance_id=$(terraform output -raw instance_id)" >> $GITHUB_OUTPUT
+          echo "role_arn=$(terraform output -raw github_actions_role_arn)" >> $GITHUB_OUTPUT
+          echo "account_id=$(aws sts get-caller-identity --query Account --output text)" >> $GITHUB_OUTPUT
+        working-directory: terraform/environments/dev
+
+      - name: Install Ansible
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ansible python3-boto3
+          pip3 install boto3 botocore
+          curl "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/ubuntu_64bit/session-manager-plugin.deb" -o /tmp/ssm-plugin.deb
+          sudo dpkg -i /tmp/ssm-plugin.deb
+
+      - name: Update Ansible inventory
+        run: |
+          cat > ansible/inventory.ini << INVENTORY
+          [ec2]
+          ${{ steps.tf_outputs.outputs.instance_id }} ansible_connection=aws_ssm ansible_aws_ssm_region=us-east-1 ansible_aws_ssm_bucket_name=tfstate-aws-infra-platform-${{ steps.tf_outputs.outputs.account_id }} ansible_python_interpreter=/usr/bin/python3
+          INVENTORY
+
+      - name: Deploy resume page via Ansible
+        run: |
+          cd ansible
+          OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES ansible-playbook deploy-resume.yml
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: "False"
+
+      - name: Update AWS_ROLE_ARN GitHub secret
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GH_PAT }}
+          script: |
+            const sodium = require('libsodium-wrappers');
+            await sodium.ready;
+
+            const repo = context.repo;
+            const { data: publicKey } = await github.rest.actions.getRepoPublicKey({
+              owner: repo.owner,
+              repo: repo.repo
+            });
+
+            const key = sodium.from_base64(publicKey.key, sodium.base64_variants.ORIGINAL);
+            const secretValue = '${{ steps.tf_outputs.outputs.role_arn }}';
+            const secretBytes = sodium.from_string(secretValue);
+            const encryptedBytes = sodium.crypto_box_seal(secretBytes, key);
+            const encryptedValue = sodium.to_base64(encryptedBytes, sodium.base64_variants.ORIGINAL);
+
+            await github.rest.actions.createOrUpdateRepoSecret({
+              owner: repo.owner,
+              repo: repo.repo,
+              secret_name: 'AWS_ROLE_ARN',
+              encrypted_value: encryptedValue,
+              key_id: publicKey.key_id
+            });
+
+
+            console.log('AWS_ROLE_ARN secret updated successfully');
