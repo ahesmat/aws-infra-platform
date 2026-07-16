@@ -18,6 +18,8 @@ echo "Connected — Account ID: $ACCOUNT_ID"
 
 BUCKET_NAME="tfstate-aws-infra-platform-${ACCOUNT_ID}"
 REGION="${AWS_DEFAULT_REGION:-us-east-1}"
+PROJECT="aws-infra-platform"
+ENVIRONMENT="dev"
 
 echo "Creating Terraform state bucket: $BUCKET_NAME..."
 aws s3api create-bucket \
@@ -53,6 +55,23 @@ sed -i '' "s/tfstate-aws-infra-platform-[A-Za-z0-9_]*/tfstate-aws-infra-platform
 echo "Reinitializing Terraform backend..."
 cd "$ROOT_DIR/terraform/environments/dev"
 terraform init -reconfigure
+
+echo "Updating Ansible inventory..."
+INSTANCE_ID=$(aws ec2 describe-instances \
+  --filters "Name=tag:Name,Values=${PROJECT}-${ENVIRONMENT}-ec2" \
+            "Name=instance-state-name,Values=running" \
+  --query 'Reservations[0].Instances[0].InstanceId' \
+  --output text 2>/dev/null || echo "")
+
+if [[ -n "$INSTANCE_ID" && "$INSTANCE_ID" != "None" ]]; then
+  cat > "$ROOT_DIR/ansible/inventory.ini" << INVENTORY
+[ec2]
+$INSTANCE_ID ansible_connection=aws_ssm ansible_aws_ssm_region=$REGION ansible_aws_ssm_bucket_name=$BUCKET_NAME ansible_python_interpreter=/usr/bin/python3
+INVENTORY
+  echo "Inventory updated with instance $INSTANCE_ID"
+else
+  echo "No running EC2 instance found - skipping inventory update"
+fi
 
 echo ""
 echo "Session setup complete. You can now run:"
