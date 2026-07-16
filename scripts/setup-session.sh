@@ -1,5 +1,4 @@
 #!/bin/bash
-set -e
 
 ROOT_DIR="$(pwd)"
 ENV_FILE="$ROOT_DIR/.env"
