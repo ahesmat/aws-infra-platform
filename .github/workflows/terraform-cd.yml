@@ -99,12 +99,11 @@ jobs:
           echo "account_id=$(aws sts get-caller-identity --query Account --output text)" >> $GITHUB_OUTPUT
         working-directory: terraform/environments/dev
 
-      - name: Install Ansible
+      - name: Install dependencies
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y ansible python3-boto3
-          pip3 install boto3 botocore
-          /opt/pipx/venvs/ansible-core/bin/pip install boto3 botocore
+          sudo apt-get install -y python3-pip python3-boto3
+          pip3 install boto3 botocore ansible
           curl "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/ubuntu_64bit/session-manager-plugin.deb" -o /tmp/ssm-plugin.deb
           sudo dpkg -i /tmp/ssm-plugin.deb
 
@@ -118,7 +117,7 @@ jobs:
       - name: Deploy resume page via Ansible
         run: |
           cd ansible
-          OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES ansible-playbook deploy-resume.yml
+          ansible-playbook deploy-resume.yml
         env:
           ANSIBLE_HOST_KEY_CHECKING: "False"
 
@@ -149,6 +148,5 @@ jobs:
               encrypted_value: encryptedValue,
               key_id: publicKey.key_id
             });
-
 
             console.log('AWS_ROLE_ARN secret updated successfully');
