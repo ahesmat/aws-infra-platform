@@ -68,6 +68,10 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
 
+    outputs:
+      role_arn: ${{ steps.role.outputs.arn }}
+      account_id: ${{ steps.account.outputs.id }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -234,7 +238,7 @@ jobs:
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-to-assume: ${{ needs.bootstrap.outputs.role_arn }}
           aws-region: us-east-1
 
       - name: Setup Terraform
