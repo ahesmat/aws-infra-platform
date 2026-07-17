@@ -34,6 +34,12 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: us-east-1
 
+      - name: Fix backend.tf with current account ID
+        run: |
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          sed -i "s/tfstate-aws-infra-platform-[A-Za-z0-9_]*/tfstate-aws-infra-platform-${ACCOUNT_ID}/" \
+            terraform/environments/dev/backend.tf
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
@@ -241,6 +247,11 @@ jobs:
           role-to-assume: ${{ needs.bootstrap.outputs.role_arn }}
           aws-region: us-east-1
 
+      - name: Fix backend.tf with current account ID
+        run: |
+          sed -i "s/tfstate-aws-infra-platform-[A-Za-z0-9_]*/tfstate-aws-infra-platform-${{ needs.bootstrap.outputs.account_id }}/" \
+            terraform/environments/dev/backend.tf
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
@@ -248,7 +259,7 @@ jobs:
           terraform_wrapper: false
 
       - name: Terraform Init
-        run: terraform init
+        run: terraform init -reconfigure
         working-directory: terraform/environments/dev
 
       - name: Terraform Apply
