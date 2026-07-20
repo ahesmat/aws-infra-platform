@@ -21,6 +21,7 @@ variable "alert_email" {
 }
 
 resource "aws_sns_topic" "alerts" {
+  kms_master_key_id = "alias/aws/sns"
   name = "${var.project}-${var.environment}-alerts"
   tags = {
     Name = "${var.project}-${var.environment}-alerts"
