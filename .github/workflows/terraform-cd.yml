@@ -274,6 +274,11 @@ jobs:
           echo "account_id=$(aws sts get-caller-identity --query Account --output text)" >> $GITHUB_OUTPUT
         working-directory: terraform/environments/dev
 
+      - name: Wait for EC2 SSM registration
+        run: |
+          echo "Waiting 90 seconds for EC2 to boot and SSM agent to register..."
+          sleep 90
+
       - name: Install dependencies
         run: |
           sudo apt-get update -qq
