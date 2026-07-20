@@ -29,6 +29,10 @@ resource "aws_instance" "main" {
 
   user_data_replace_on_change = true
 
+  root_block_device {
+    encrypted = true
+  }
+
   metadata_options {
     http_endpoint               = "enabled"
     http_tokens                 = "required"

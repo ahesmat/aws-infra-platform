@@ -5,6 +5,7 @@ resource "aws_lb" "main" {
   security_groups            = [aws_security_group.alb.id]
   subnets                    = [aws_subnet.public[0].id, aws_subnet.public[1].id]
   enable_deletion_protection = false
+  drop_invalid_header_fields = true
 
   tags = {
     Name = "${var.project}-${var.environment}-alb"
