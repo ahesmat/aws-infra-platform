@@ -2,6 +2,8 @@
 
 Production-grade cloud infrastructure built with Terraform, deployed via GitHub Actions CI/CD, with full observability and security hardening.
 
+Hosts a live resume page for **Ahmed Esmat — Cloud & DevOps Engineer**, deployed via Ansible + Jinja2 over AWS SSM with no SSH access.
+
 **Live site:** [https://devops.reachlyapp.com](https://devops.reachlyapp.com)
 
 ---
