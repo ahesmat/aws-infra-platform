@@ -85,52 +85,11 @@ Each sandbox session runs the full pipeline automatically:
 
 ## Repository Structure
 
-aws-infra-platform/
-├── .github/workflows/
-│ ├── terraform-ci.yml
-│ ├── terraform-cd.yml
-│ └── aws-auth-test.yml
-├── ansible/
-│ ├── deploy-resume.yml
-│ ├── deploy-cloudwatch.yml
-│ ├── inventory.ini
-│ ├── vars.yml
-│ └── templates/
-│ ├── index.html.j2
-│ └── cloudwatch-agent.json.j2
-├── docs/
-│ └── runbook.md
-├── scripts/
-│ ├── new-session.sh
-│ ├── setup-session.sh
-│ ├── health-check.sh
-│ ├── log-summary.sh
-│ └── cost-estimate.sh
-└── terraform/
-└── environments/
-└── dev/
-├── main.tf
-├── variables.tf
-├── outputs.tf
-├── backend.tf
-├── vpc.tf
-├── igw.tf
-├── nat.tf
-├── routes.tf
-├── security-groups.tf
-├── iam.tf
-├── ec2.tf
-├── alb.tf
-├── acm.tf
-├── route53.tf
-├── route53-record.tf
-├── route53-alb-record.tf
-├── cloudwatch.tf
-├── insights.tf
-├── ssm.tf
-├── s3-policy.tf
-└── oidc.tf
-
+- `.github/workflows/` — CI/CD workflow definitions
+- `ansible/` — Ansible playbooks and Jinja2 templates for EC2 configuration
+- `docs/runbook.md` — Incident response runbook
+- `scripts/` — Operational scripts (health check, log summary, cost estimate, session bootstrap)
+- `terraform/environments/dev/` — All Terraform resources (VPC, EC2, ALB, ACM, Route 53, CloudWatch, OIDC, SSM, S3)
 
 ---
 
